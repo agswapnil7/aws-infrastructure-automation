@@ -30,13 +30,13 @@ VPC (10.0.0.0/16)
 ```
 
 ## Success Criteria
-- ✅ Jenkins pipeline deploys VPN infrastructure successfully
-- ✅ 3 public subnets created across different AZs
-- ✅ 3 private subnets created across different AZs  
-- ✅ NAT instances provide internet access (no Elastic IPs)
-- ✅ Proper routing configured between subnets
-- ✅ Infrastructure automatically destroyed after testing
-- ✅ Zero ongoing AWS costs after pipeline completion
+- Jenkins pipeline deploys VPN infrastructure successfully
+- 3 public subnets created across different AZs
+- 3 private subnets created across different AZs  
+- NAT instances provide internet access (no Elastic IPs)
+- Proper routing configured between subnets
+- Infrastructure automatically destroyed after testing
+- Zero ongoing AWS costs after pipeline completion
 
 ## File Structure
 ```
