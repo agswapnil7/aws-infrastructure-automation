@@ -43,7 +43,8 @@ VPC (10.0.0.0/16)
 vpn-deployment/
 ├── main.tf          # VPN infrastructure Terraform code
 ├── Jenkinsfile      # Pipeline with apply, verify, and destroy stages
-└── README.md        # This documentation
+├── README.md        # This documentation
+└── output.txt       # Output from Jenkins console
 ```
 
 ## Key Features
