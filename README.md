@@ -44,7 +44,8 @@
 s3-deployment/
 ├── main.tf          # S3 bucket Terraform configuration
 ├── Jenkinsfile      # Parameterized pipeline script
-└── README.md        # This documentation
+├── README.md        # This documentation
+└── output.txt        # Output from jenkins console
 ```
 
 ## Pipeline Parameters
