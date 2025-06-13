@@ -2,7 +2,9 @@
 
 This guide demonstrates how to set up a Jenkins Multibranch Pipeline for automated deployment of AWS VPN and S3 resources using Terraform across separate branches in a single GitHub repository.
 Repository Structure
-aws-infrastructure-automation/
+
+aws-infrastructure-automation/ 
+
 ├── main (default branch)
 │   └── README.md (this file)
 ├── vpn-deployment
