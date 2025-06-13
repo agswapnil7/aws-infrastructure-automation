@@ -1,17 +1,34 @@
-### AWS Infrastructure Automation (VPN + S3)
+# Jenkins Multibranch Pipeline Setup: AWS Infrastructure Automation (VPN + S3)
 
-This guide demonstrates how to set up a Jenkins Multibranch Pipeline for automated deployment of AWS VPN and S3 resources using Terraform across separate branches in a single GitHub repository.
-Repository Structure
+This repository demonstrates a Jenkins **Multibranch Pipeline** setup for automating the deployment of AWS infrastructure using **Terraform**. The deployments are separated into two branches/folders — one for setting up a **VPN** and the other for **S3** — each with its own Terraform configuration and `Jenkinsfile`.
 
-aws-infrastructure-automation/ 
+---
 
-├── main (default branch)
-│   └── README.md (this file)
-├── vpn-deployment
-│   ├── main.tf
-│   ├── Jenkinsfile
-│   └── README.md
-└── s3-deployment
-    ├── main.tf
-    ├── Jenkinsfile
-    └── README.md
+##  Project Overview
+
+- **vpn-deployment/**: Contains Terraform code and pipeline for provisioning a VPN on AWS.
+- **s3-deployment/**: Contains Terraform code and pipeline for provisioning an S3 bucket on AWS.
+
+Each deployment path has:
+- A `main.tf` file to define the Terraform resources.
+- A `Jenkinsfile` to automate the deployment process via Jenkins.
+- A `README.md` explaining that specific deployment module.
+
+---
+
+## Jenkins Multibranch Pipeline
+
+This setup uses Jenkins' **Multibranch Pipeline** feature to automatically detect and run pipelines for each branch/directory based on its `Jenkinsfile`.
+
+> Ensure Jenkins has access to this GitHub repository and is configured to scan branches or folders with `Jenkinsfile`.
+
+---
+
+## Tools & Technologies
+
+- AWS
+- Terraform
+- Jenkins (Multibranch Pipeline)
+- Git & GitHub
+
+---
