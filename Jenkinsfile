@@ -2,94 +2,89 @@ pipeline {
     agent any
     
     environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        TF_IN_AUTOMATION = "true"
-    }
-    
-    parameters {
-        choice(
-            name: 'ACTION',
-            choices: ['apply', 'destroy'],
-            description: 'Select Terraform action to perform'
-        )
+        AWS_DEFAULT_REGION = 'us-east-1' // Change to your preferred region
+        AWS_CREDENTIALS_ID = 'aws-creds' // Your existing AWS credentials in Jenkins
     }
     
     stages {
         stage('Checkout') {
             steps {
-                echo "Building S3 Infrastructure from branch: ${env.BRANCH_NAME}"
                 checkout scm
             }
         }
         
-        stage('Terraform Init') {
+        stage('Terraform Init & Validate') {
             steps {
-                sh 'terraform init'
-            }
-        }
-        
-        stage('Terraform Validate') {
-            steps {
-                sh 'terraform validate'
+                script {
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', 
+                         credentialsId: 'aws-creds',
+                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        // Initialize and validate Terraform
+                        sh 'terraform init'
+                        sh 'terraform validate'
+                    }
+                }
             }
         }
         
         stage('Terraform Plan') {
-            when {
-                expression { params.ACTION == 'apply' }
-            }
             steps {
-                sh 'terraform plan -out=tfplan'
+                script {
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', 
+                         credentialsId: 'aws-creds',
+                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        // Create execution plan
+                        sh 'terraform plan -out=tfplan'
+                    }
+                }
             }
         }
         
-        stage('Terraform Apply') {
-            when {
-                expression { params.ACTION == 'apply' }
-            }
+        stage('Deploy S3 Infrastructure') {
             steps {
-                sh 'terraform apply -auto-approve tfplan'
-            }
-        }
-        
-        stage('Verify S3 Bucket') {
-            when {
-                expression { params.ACTION == 'apply' }
-            }
-            steps {
-                echo 'Verifying S3 bucket creation...'
-                sh '''
-                    echo "Bucket Name:"
-                    terraform output bucket_name
-                    echo "Bucket ARN:"
-                    terraform output bucket_arn
-                    echo "Listing bucket contents:"
-                    aws s3 ls s3://$(terraform output -raw bucket_name) --recursive
-                '''
-            }
-        }
-        
-        stage('Terraform Destroy') {
-            when {
-                expression { params.ACTION == 'destroy' }
-            }
-            steps {
-                sh 'terraform destroy -auto-approve'
+                script {
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', 
+                         credentialsId: 'aws-creds',
+                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        // Apply Terraform configuration
+                        sh 'terraform apply -auto-approve tfplan'
+                        
+                        // Display outputs
+                        sh 'terraform output'
+                    }
+                }
             }
         }
     }
     
     post {
         always {
-            echo 'Cleaning up workspace...'
-            deleteDir()
+            script {
+                // Clean up workspace within node context
+                echo 'Cleaning up workspace...'
+                deleteDir()
+            }
         }
         success {
-            echo "S3 infrastructure pipeline (${params.ACTION}) completed successfully!"
+            echo 'S3 infrastructure pipeline completed successfully!'
         }
         failure {
-            echo "S3 infrastructure pipeline (${params.ACTION}) failed!"
+            echo 'S3 infrastructure pipeline failed!'
+        }
+        cleanup {
+            script {
+                // Clean up Terraform files
+                sh 'rm -f tfplan terraform.tfstate.backup'
+            }
         }
     }
 }
